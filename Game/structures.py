@@ -39,6 +39,10 @@ class Drawable(object):
         for drawable in self.get_drawables():
             drawable.draw(context)
 
+    def redraw(self, context):
+        for drawable in self.get_drawables():
+            drawable.undraw()
+            drawable.draw(context)
 
 #defines a game board
 class Board(Drawable):
@@ -160,6 +164,57 @@ class Board(Drawable):
         return [cell for cell in self.cells if cell.color is Color.black]
 
 
+    def get_affected_set(self, cell, color):
+        #gets all neighboring occupied cells of the opposite color (to be captured)
+        neighboring = [x for x in self.get_used_neighbors(cell) if x.color is Color.opposite(color)]
+
+        affected = []
+
+        #for each neighboring cell
+        for neighbor in neighboring:
+
+            #setting a new variable for iteration in the given direction
+            testing = neighbor
+
+            #getting the direction from the cell being checked to its neighbor
+            direction = Board.get_direction(cell, neighbor)
+
+            #first cell to be checked must be in bounds of the game board
+            in_vertical = in_horizontal = True
+
+            #have not yet found an empty cell or an end point
+            found_end = found_empty = False
+
+            queue = []
+
+            #while no end condition has been satisfied
+            while (not found_end) and (not found_empty) and (in_vertical and in_horizontal):
+
+                #keeping track of all cells in direction
+                queue.append(testing)
+
+                #move to the next cell in the direction
+                testing = self.rows[testing.row + direction[0]][testing.column + direction[1]]
+
+                #check if ending cell has been found (validates move)
+                found_end = testing.color is color
+
+                #checks if empty cell was found
+                found_empty = testing.color is Color.blank
+
+                #checks if cell in vertical bounds
+                in_vertical = (0 <= testing.row + direction[0] < self.dimension)
+
+                #checks if cell in horizontal bounds
+                in_horizontal = (0 <= testing.column + direction[1] < self.dimension)
+
+            #if an end point was found then we have validated the position
+            if found_end:
+                affected.extend(queue)
+
+        return affected
+
+
     #checks if a particular cell is a viable move for a particular color
     def check_possible(self, cell, color):
 
@@ -218,6 +273,15 @@ class Board(Drawable):
     def get_moves(self, color):
         return [x for x in self.get_unused()if self.check_possible(x,color)]
 
+
+    def make_move(self, cell, color, check=True):
+        if (not check) or self.check_possible(cell,color):
+            flipped = self.get_affected_set(cell,color)
+            for each in flipped:
+                each.color = color
+            cell.color = color
+        else:
+            return False
 
     #returns this objects drawable components
     def get_drawables(self):

@@ -11,10 +11,18 @@ WINDOW = GraphWin('Reversi', b.pixels, b.pixels)
 WINDOW.setBackground(BACKGROUND)
 b.draw(WINDOW)
 
+
 #drawing all possible first moves for white
-for x in b.get_moves(Color.black):
-    x.color = Color.red
-    x.draw(WINDOW)
+move =  b.get_moves(Color.white)[0]
+b.make_move(move,Color.white)
+
+moves = b.get_moves(Color.black)
+for move in moves:
+    move.color = Color.red
+    move.draw(WINDOW)
+
+b.redraw(WINDOW)
+
 
 WINDOW.getMouse()
 WINDOW.close()
