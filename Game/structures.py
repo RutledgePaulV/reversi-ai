@@ -62,7 +62,7 @@ class Board(Drawable):
         self.spacing = (self.pixels / self.dimension)
 
         #radius of each piece on the game baord
-        self.radius = 0.6 * self.spacing
+        self.radius = 0.35 * self.spacing
 
         #generating cells
         for row, col in product(range(self.dimension), range(self.dimension)):
@@ -119,10 +119,13 @@ class Board(Drawable):
 
         #double for loop reduced via itertools.product
         for row, col in product(range(-1, 2), range(-1, 2)):
+
             #don't need to check the current cell
             if not ((row == 0) and (col == 0)):
+
                 #as long as the position is in the bounds of the game board
                 if (self.dimension > cell.row + row >= 0) and (self.dimension > cell.column + col >= 0):
+
                     #yield the given cell
                     yield self.rows[cell.row + row][cell.column + col]
 
