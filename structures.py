@@ -11,7 +11,6 @@ class Color(Enum):
     black = 2
     red = 3
 
-
     #method on enum allows getting the opposite color (could have used booleans)
     @staticmethod
     def opposite(color):
@@ -95,6 +94,14 @@ class Board(Drawable):
             self.rows[row].append(cell)
             self.columns[col].append(cell)
             self.cells.append(cell)
+
+        half = self.dimension//2
+        half_less = half - 1
+
+        self.rows[half_less][half_less].color = Color.white
+        self.rows[half_less][half].color = Color.black
+        self.rows[half][half_less].color = Color.black
+        self.rows[half][half].color = Color.white
 
         #generating grid lines
         for count in range(1, self.dimension):
@@ -287,6 +294,14 @@ class Board(Drawable):
     def get_drawables(self):
         return self.grid_lines + list(chain.from_iterable([cell.get_drawables() for cell in self.get_used()]))
 
+    def serialize(self):
+        lines = []
+        for row in self.rows:
+            line = ''
+            for col in self.columns:
+                line += str(self.rows[row][col].color.value)
+            lines.append(line)
+        return '\n'.join(lines)
 
     #creates a copy of the given board to instantiate new references to cells for constructing trees
     def copy(self):
@@ -309,6 +324,7 @@ class Cell(Drawable):
     #returns drawable sub components
     def get_drawables(self):
         self.circle.setFill(self.color.name)
+        self.circle.setOutline(self.color.name)
         return [self.circle]
 
 
