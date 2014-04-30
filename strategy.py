@@ -5,7 +5,11 @@ def standard(board, color):
 
 def step_forward(board, heuristic, color):
     available = board.get_moves(color)
-    next_boards = [board.copy().make_move(move, color, False) for move in available]
-    ranked = [(heuristic(next_board, color),next_board) for next_board in next_boards]
-    sorted(ranked,lambda x: x[0])
-    return ranked[0]
+    ranked = []
+    for move in available:
+        new_board = board.copy()
+        new_board.make_move(move, color, False)
+        ranked.append((heuristic(new_board, color), new_board))
+
+    sorted(ranked, key=lambda x: x[0])
+    return ranked[0][1]

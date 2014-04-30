@@ -1,8 +1,8 @@
 from itertools import chain, product
-
 from enum import Enum
-
+import numpy as np
 from graphics import *
+
 
 #color enum represents color of each game piece
 class Color(Enum):
@@ -24,7 +24,6 @@ class Color(Enum):
 
 #represents an object that can be drawn
 class Drawable(object):
-
     #returns any sub components which are drawable
     def get_drawables(self):
         """
@@ -43,69 +42,40 @@ class Drawable(object):
             drawable.undraw()
             drawable.draw(context)
 
+
 #defines a game board
 class Board(Drawable):
+    FLAGS = ['external_loop', 'refs_ok']
 
     #constructor
     def __init__(self, dimension=8, pixels=400):
 
-        #various containers for easy access of cells
-        self.rows, self.columns, self.cells = {}, {}, []
+        #constructing empty numpy array to hold cells
+        self.table = np.empty((dimension, dimension), dtype=Cell)
 
         #some sub components for drawing grid lines on context
         self.grid_lines = []
-
-        #number of pixels that define the board graphically
-        self.pixels = pixels
 
         #dimension represents number of rows and columns on the board
         self.dimension = dimension
 
         #calculating spacing between each row / column
-        self.spacing = (self.pixels / self.dimension)
+        self.spacing = (pixels / dimension)
 
-        #radius of each piece on the game baord
+        #number of pixels that define the board graphically
+        self.pixels = pixels
+
+        #radius of each piece on the game board
         self.radius = 0.35 * self.spacing
 
-        #generating cells
-        for row, col in product(range(self.dimension), range(self.dimension)):
+        self.__reset__()
+        self.__construct_grid_lines__()
 
-            #defining x position
-            x = (col * self.spacing) + 0.5 * self.spacing
 
-            #defining y position
-            y = (row * self.spacing) + 0.5 * self.spacing
-
-            #defining graphical representation
-            circle = Circle(Point(x, y), self.radius)
-
-            #creating actual cell object
-            cell = Cell(row, col, circle, Color.blank)
-
-            #if the current row doesn't exist yet, create it
-            if not row in self.rows:
-                self.rows[row] = []
-
-            #if the current column doesn't exist yet, create it
-            if not col in self.columns:
-                self.columns[col] = []
-
-            #appending cell to various containers
-            self.rows[row].append(cell)
-            self.columns[col].append(cell)
-            self.cells.append(cell)
-
-        half = self.dimension//2
-        half_less = half - 1
-
-        self.rows[half_less][half_less].color = Color.white
-        self.rows[half_less][half].color = Color.black
-        self.rows[half][half_less].color = Color.black
-        self.rows[half][half].color = Color.white
+    def __construct_grid_lines__(self):
 
         #generating grid lines
         for count in range(1, self.dimension):
-
             #getting distance in pixels from top left
             coordinate = count * self.spacing
 
@@ -119,6 +89,42 @@ class Board(Drawable):
             self.grid_lines.extend([horizontal_line, vertical_line])
 
 
+    def __reset__(self):
+
+        iterator = np.nditer(self.table, flags=['multi_index', 'refs_ok'], op_flags=['readwrite'])
+
+        while not iterator.finished:
+            #getting indices
+            row, col = iterator.multi_index
+
+            #defining y position
+            y = (row + 0.5) * self.spacing
+
+            #defining x position
+            x = (col + 0.5) * self.spacing
+
+            #defining graphical representation
+            circle = Circle(Point(x, y), self.radius)
+
+            #creating actual cell object
+            self.table[row, col] = Cell(row, col, circle, Color.blank)
+
+            #moving iterator
+            iterator.iternext()
+
+        #half the dimension
+        half = self.dimension // 2
+
+        #half the dimension minus one
+        half_less = half - 1
+
+        #setting initial starting positions
+        self.table[half, half].color = Color.white
+        self.table[half_less, half].color = Color.black
+        self.table[half, half_less].color = Color.black
+        self.table[half_less, half_less].color = Color.white
+
+
     #this static method returns the direction that must be traveled to move from cell1 to cell2
     @staticmethod
     def get_direction(cell1, cell2):
@@ -127,110 +133,60 @@ class Board(Drawable):
 
     #gets any immediate neighbors of a cell (including diagonal), includes check for existence
     def get_neighboring(self, cell):
-
-        #double for loop reduced via itertools.product
-        for row, col in product(range(-1, 2), range(-1, 2)):
-
-            #don't need to check the current cell
+        neighbors = []
+        for row, col in product((-1, 0, 1), (-1, 0, 1)):
             if not ((row == 0) and (col == 0)):
-
-                #as long as the position is in the bounds of the game board
                 if (self.dimension > cell.row + row >= 0) and (self.dimension > cell.column + col >= 0):
-
-                    #yield the given cell
-                    yield self.rows[cell.row + row][cell.column + col]
+                    neighbors.append(self.table[cell.row + row, cell.column + col])
+        return neighbors
 
 
     #returns all cells nearby another cell who have no color assigned
     def get_unused_neighbors(self, cell):
-        return [x for x in self.get_neighboring(cell) if x.color is Color.blank]
+        neighbors = list(self.get_neighboring(cell))
+        result = [x for x in neighbors if x.color is not Color.blank]
+        return result
 
 
     #returns all cells nearby another cell who have a color assigned
     def get_used_neighbors(self, cell):
-        return [x for x in self.get_neighboring(cell) if x.color is not Color.blank]
+        neighbors = list(self.get_neighboring(cell))
+        result = [x for x in neighbors if x.color is not Color.blank]
+        return result
 
 
     #returns all cells assigned a color on the game board
     def get_used(self):
-        return [cell for cell in self.cells if cell.color is not Color.blank]
+        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if cell.color is not Color.blank]
 
 
     #returns all cells not assigned a color on the game board
     def get_unused(self):
-        return [cell for cell in self.cells if cell.color is Color.blank]
+        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if cell.color is Color.blank]
 
 
     #returns all cells assigned the color white on the board
     def get_white(self):
-        return [cell for cell in self.cells if cell.color is Color.white]
+        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if cell.color is Color.white]
 
 
     #returns all cells assigned the color black on the board
     def get_black(self):
-        return [cell for cell in self.cells if cell.color is Color.black]
-
-
-    def get_affected_set(self, cell, color):
-        #gets all neighboring occupied cells of the opposite color (to be captured)
-        neighboring = [x for x in self.get_used_neighbors(cell) if x.color is Color.opposite(color)]
-
-        affected = []
-
-        #for each neighboring cell
-        for neighbor in neighboring:
-
-            #setting a new variable for iteration in the given direction
-            testing = neighbor
-
-            #getting the direction from the cell being checked to its neighbor
-            direction = Board.get_direction(cell, neighbor)
-
-            #first cell to be checked must be in bounds of the game board
-            in_vertical = in_horizontal = True
-
-            #have not yet found an empty cell or an end point
-            found_end = found_empty = False
-
-            queue = []
-
-            #while no end condition has been satisfied
-            while (not found_end) and (not found_empty) and (in_vertical and in_horizontal):
-
-                #keeping track of all cells in direction
-                queue.append(testing)
-
-                #move to the next cell in the direction
-                testing = self.rows[testing.row + direction[0]][testing.column + direction[1]]
-
-                #check if ending cell has been found (validates move)
-                found_end = testing.color is color
-
-                #checks if empty cell was found
-                found_empty = testing.color is Color.blank
-
-                #checks if cell in vertical bounds
-                in_vertical = (0 <= testing.row + direction[0] < self.dimension)
-
-                #checks if cell in horizontal bounds
-                in_horizontal = (0 <= testing.column + direction[1] < self.dimension)
-
-            #if an end point was found then we have validated the position
-            if found_end:
-                affected.extend(queue)
-
-        return affected
+        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if cell.color is Color.black]
 
 
     #checks if a particular cell is a viable move for a particular color
     def check_possible(self, cell, color):
+
+        #cells which will be flipped if the move is played
+        affected = []
 
         #gets all neighboring occupied cells of the opposite color (to be captured)
         neighboring = [x for x in self.get_used_neighbors(cell) if x.color is Color.opposite(color)]
 
         #if there are no neighbors of the opposite color, it is not a valid move
         if len(neighboring) == 0:
-            return False
+            return False,affected
 
         #otherwise
         else:
@@ -250,11 +206,15 @@ class Board(Drawable):
                 #have not yet found an empty cell or an end point
                 found_end = found_empty = False
 
+                queue = []
+
                 #while no end condition has been satisfied
                 while (not found_end) and (not found_empty) and (in_vertical and in_horizontal):
 
+                    queue.append(testing)
+
                     #move to the next cell in the direction
-                    testing = self.rows[testing.row + direction[0]][testing.column + direction[1]]
+                    testing = self.table[testing.row + direction[0], testing.column + direction[1]]
 
                     #check if ending cell has been found (validates move)
                     found_end = testing.color is color
@@ -270,21 +230,26 @@ class Board(Drawable):
 
                 #if an end point was found then we have validated the position
                 if found_end:
-                    return True
+                    affected.extend(queue)
+
+            #if at least one cell would be affected by the move
+            if len(affected) > 0:
+                return True,affected
 
             #if nothing validated or faulted, move is not valid
-            return False
+            else:
+                return False,affected
 
 
     #returns all possible moves for a given color
     def get_moves(self, color):
-        return [x for x in self.get_unused()if self.check_possible(x,color)]
+        return [x for x in self.get_unused() if self.check_possible(x, color)]
 
 
     def make_move(self, cell, color, check=True):
-        if (not check) or self.check_possible(cell,color):
-            flipped = self.get_affected_set(cell,color)
-            for each in flipped:
+        valid,affected = self.check_possible(cell, color)
+        if (not check) or valid:
+            for each in affected:
                 each.color = color
             cell.color = color
         else:
@@ -296,23 +261,27 @@ class Board(Drawable):
 
     def serialize(self):
         lines = []
-        for row in self.rows:
+        for row in self.table:
             line = ''
-            for col in self.columns:
-                line += str(self.rows[row][col].color.value)
+            for col in row:
+                line += str(self.table[row, col].color.value)
             lines.append(line)
         return '\n'.join(lines)
+
 
     #creates a copy of the given board to instantiate new references to cells for constructing trees
     def copy(self):
         b = Board(self.dimension)
-        [b.cells[index].append(cell.copy()) for index, cell in enumerate(self.cells)]
+        iterator = np.nditer(self.table, flags=['multi_index', 'refs_ok'])
+        while not iterator.finished:
+            row, col = iterator.multi_index
+            b.table[row, col] = iterator[0].copy()
+            iterator.iternext()
         return b
 
 
 #defines a cell
 class Cell(Drawable):
-
     #constructor
     def __init__(self, row, column, circle, color):
         self.row = row
