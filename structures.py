@@ -143,16 +143,12 @@ class Board(Drawable):
 
     #returns all cells nearby another cell who have no color assigned
     def get_unused_neighbors(self, cell):
-        neighbors = list(self.get_neighboring(cell))
-        result = [x for x in neighbors if x.color is not Color.blank]
-        return result
+        return [x for x in self.get_neighboring(cell) if x.color is not Color.blank]
 
 
     #returns all cells nearby another cell who have a color assigned
     def get_used_neighbors(self, cell):
-        neighbors = list(self.get_neighboring(cell))
-        result = [x for x in neighbors if x.color is not Color.blank]
-        return result
+        return [x for x in self.get_neighboring(cell) if x.color is not Color.blank]
 
 
     #returns all cells assigned a color on the game board

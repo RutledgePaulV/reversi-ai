@@ -1,7 +1,8 @@
+import numpy as np
 
 #standard heuristic just counts number by color
 def standard(board, color):
-    return len([cell for cell in board.cells if cell.color is color])
+    return len([cell for cell in np.nditer(board.table, flags=board.FLAGS)[0]if cell.color is color])
 
 def step_forward(board, heuristic, color):
     available = board.get_moves(color)

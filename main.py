@@ -7,9 +7,10 @@ WINDOW = GraphWin('Reversi', b.pixels, b.pixels)
 WINDOW.setBackground(BACKGROUND)
 
 b.draw(WINDOW)
-result,effected = b.check_possible(b.table[2,2],Color.white)
 
-print(result)
+result = step_forward(b,standard,Color.white)
+
+result.draw(WINDOW)
 
 WINDOW.getMouse()
 WINDOW.close()
