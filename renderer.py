@@ -46,6 +46,10 @@ class Renderer(object):
                 self.cells.append(circle)
 
 
+    def update(self, board):
+       pass
+
+
     def refresh(self):
         [line.undraw(self.window) for line in self.grid]
         [cell.undraw(self.window) for cell in self.cells]

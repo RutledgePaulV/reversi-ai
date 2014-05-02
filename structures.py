@@ -5,7 +5,7 @@ from enums import *
 
 #defines a game board
 class Board(object):
-    FLAGS = ['external_loop', 'refs_ok']
+    FLAGS = ['external_loop']
 
     #constructor
     def __init__(self, dimension=8):
@@ -25,7 +25,7 @@ class Board(object):
 
     def __reset__(self):
 
-        iterator = np.nditer(self.table, flags=['multi_index', 'refs_ok'], op_flags=['readwrite'])
+        iterator = np.nditer(self.table, flags=['multi_index'], op_flags=['readwrite'])
 
         while not iterator.finished:
             #getting indices
@@ -53,7 +53,7 @@ class Board(object):
     #this property returns a list containing all the cells
     @property
     def cells(self):
-        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0]]
+        return self.filter_all(lambda x: True)
 
 
     #this static method returns the direction that must be traveled to move from cell1 to cell2
@@ -62,11 +62,13 @@ class Board(object):
         return cell2['row'] - cell1['row'], cell2['column'] - cell1['column']
 
 
+    #checks if two cells are neighbors
     @staticmethod
     def is_neighbor(cell1, cell2):
         net_row = abs(cell1['row'] - cell2['row'])
         net_col = abs(cell1['column'] - cell2['column'])
         return (not (net_row == 0 and net_col == 0)) and (net_row <= 1 and net_col <= 1)
+
 
     #filters all cells according to some predicate
     def filter_all(self, predicate):
@@ -77,6 +79,7 @@ class Board(object):
     def get_unused_neighbors(self, cell):
         return self.filter_all(lambda cell2: self.is_neighbor(cell, cell2) and
                                              Color.from_int(cell2['color']) is Color.blank)
+
 
     #returns all cells nearby another cell who have a color assigned
     def get_used_neighbors(self, cell):
@@ -111,7 +114,8 @@ class Board(object):
         effected = []
 
         #gets all neighboring occupied cells of the opposite color (to be captured)
-        neighboring = [x for x in self.get_used_neighbors(cell) if Color.from_int(x['color']) is Color.opposite(color)]
+        neighboring = [x for x in self.get_used_neighbors(cell)
+                       if Color.from_int(x['color']) is Color.opposite(color)]
 
         #if there are no neighbors of the opposite color, it is not a valid move
         if len(neighboring) == 0:
@@ -187,7 +191,7 @@ class Board(object):
     #creates a copy of the given board to instantiate new references to cells for constructing trees
     def copy(self):
         b = Board(self.dimension)
-        iterator = np.nditer(self.table, flags=['multi_index', 'refs_ok'])
+        iterator = np.nditer(self.table, flags=['multi_index'])
         while not iterator.finished:
             row, col = iterator.multi_index
             b.table[row, col] = iterator[0].copy()
