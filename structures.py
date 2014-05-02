@@ -1,9 +1,5 @@
-from itertools import product
-
 import numpy as np
-
 from enums import *
-
 
 
 
@@ -41,7 +37,6 @@ class Board(object):
             #moving iterator
             iterator.iternext()
 
-
         #half the dimension
         half = self.dimension // 2
 
@@ -55,58 +50,58 @@ class Board(object):
         self.table[half_less, half_less]['color'] = Color.white.value
 
 
-    #this static method returns the direction that must be traveled to move from cell1 to cell2
-    @staticmethod
-    def get_direction(cell1, cell2):
-        return cell2['row'] - cell1['row'], cell2['column'] - cell1['column']
-
-
     #this property returns a list containing all the cells
     @property
     def cells(self):
         return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0]]
 
 
-    #gets any immediate neighbors of a cell (including diagonal), includes check for existence
-    def get_neighboring(self, cell):
-        for row, col in product((-1, 0, 1), (-1, 0, 1)):
-            if not ((row == 0) and (col == 0)):
-                if (self.dimension > cell['row'] + row >= 0) and (self.dimension > cell['column'] + col >= 0):
-                    yield self.table[cell['row'] + row, cell['column'] + col]
+    #this static method returns the direction that must be traveled to move from cell1 to cell2
+    @staticmethod
+    def get_direction(cell1, cell2):
+        return cell2['row'] - cell1['row'], cell2['column'] - cell1['column']
+
+
+    @staticmethod
+    def is_neighbor(cell1, cell2):
+        net_row = abs(cell1['row'] - cell2['row'])
+        net_col = abs(cell1['column'] - cell2['column'])
+        return (not (net_row == 0 and net_col == 0)) and (net_row <= 1 and net_col <= 1)
+
+    #filters all cells according to some predicate
+    def filter_all(self, predicate):
+        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if predicate(cell)]
 
 
     #returns all cells nearby another cell who have no color assigned
     def get_unused_neighbors(self, cell):
-        return [x for x in self.get_neighboring(cell) if Color.from_int(x['color']) is not Color.blank]
-
+        return self.filter_all(lambda cell2: self.is_neighbor(cell, cell2) and
+                                             Color.from_int(cell2['color']) is Color.blank)
 
     #returns all cells nearby another cell who have a color assigned
     def get_used_neighbors(self, cell):
-        return [x for x in self.get_neighboring(cell) if Color.from_int(x['color']) is not Color.blank]
+        return self.filter_all(lambda cell2: self.is_neighbor(cell, cell2) and
+                                             Color.from_int(cell2['color']) is not Color.blank)
 
 
     #returns all cells assigned a color on the game board
     def get_used(self):
-        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if
-                Color.from_int(cell['color']) is not Color.blank]
+        return self.filter_all(lambda cell: Color.from_int(cell['color']) is not Color.blank)
 
 
     #returns all cells not assigned a color on the game board
     def get_unused(self):
-        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if
-                Color.from_int(cell['color']) is Color.blank]
+        return self.filter_all(lambda cell: Color.from_int(cell['color']) is Color.blank)
 
 
     #returns all cells assigned the color white on the board
     def get_white(self):
-        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if
-                Color.from_int(cell['color']) is Color.white]
+        return self.filter_all(lambda cell: Color.from_int(cell['color']) is Color.white)
 
 
     #returns all cells assigned the color black on the board
     def get_black(self):
-        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if
-                Color.from_int(cell['color']) is Color.black]
+        return self.filter_all(lambda cell: Color.from_int(cell['color']) is Color.black)
 
 
     #checks if a particular cell is a viable move for a particular color
@@ -147,19 +142,19 @@ class Board(object):
                     queue.append(testing)
 
                     #move to the next cell in the direction
-                    testing = self.table[testing.row + direction[0], testing.column + direction[1]]
+                    testing = self.table[testing['row'] + direction[0], testing['column'] + direction[1]]
 
                     #check if ending cell has been found (validates move)
-                    found_end = testing.color is color
+                    found_end = Color.from_int(testing['color']) is color
 
                     #checks if empty cell was found
-                    found_empty = testing.color is Color.blank
+                    found_empty = Color.from_int(testing['color']) is Color.blank
 
                     #checks if cell in vertical bounds
-                    in_vertical = (0 <= testing.row + direction[0] < self.dimension)
+                    in_vertical = (0 <= testing['row'] + direction[0] < self.dimension)
 
                     #checks if cell in horizontal bounds
-                    in_horizontal = (0 <= testing.column + direction[1] < self.dimension)
+                    in_horizontal = (0 <= testing['column'] + direction[1] < self.dimension)
 
                 #if an end point was found then we have validated the position
                 if found_end:
@@ -183,20 +178,10 @@ class Board(object):
         valid, effected = self.check_possible(cell, color)
         if (not check) or valid:
             for each in effected:
-                each.color = color
+                each['color'] = color
             cell.color = color
         else:
             return False
-
-
-    def serialize(self):
-        lines = []
-        for row in self.table:
-            line = ''
-            for col in row:
-                line += str(self.table[row, col].color.value)
-            lines.append(line)
-        return '\n'.join(lines)
 
 
     #creates a copy of the given board to instantiate new references to cells for constructing trees
