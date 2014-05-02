@@ -1,16 +1,18 @@
 from structures import *
 from strategy import *
+from renderer import *
 
 b = Board()
 BACKGROUND = 'grey'
-WINDOW = GraphWin('Reversi', b.pixels, b.pixels)
-WINDOW.setBackground(BACKGROUND)
 
-b.draw(WINDOW)
+g = Renderer(500,BACKGROUND)
 
-result = step_forward(b,standard,Color.white)
+g.load(b)
+g.render()
 
-result.draw(WINDOW)
 
-WINDOW.getMouse()
-WINDOW.close()
+# result = step_forward(b,standard,Color.white)
+#
+# result.draw(WINDOW)
+
+result = b.get_neighboring((3,3,1))
