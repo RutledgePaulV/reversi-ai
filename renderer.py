@@ -33,7 +33,7 @@ class Renderer(object):
 
         for cell in board.cells:
 
-            row, column, color = cell['row'], cell['column'], cell['color']
+            row, column, color = cell['row'], cell['col'], cell['color']
             x = (row + 0.5) * spacing
             y = (column + 0.5) * spacing
 

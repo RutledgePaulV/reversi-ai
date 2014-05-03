@@ -1,8 +1,5 @@
 import numpy as np
-
 from enums import *
-
-
 
 
 #defines a game board
@@ -13,7 +10,7 @@ class Board(object):
     def __init__(self, dimension=8):
 
         #defining numpy data type
-        self.cell_type = np.dtype([('row', int), ('column', int), ('color', int)])
+        self.cell_type = np.dtype([('row', int), ('col', int), ('color', int)])
 
         #constructing empty numpy array to hold cells
         self.table = np.empty((dimension, dimension), dtype=self.cell_type)
@@ -61,14 +58,14 @@ class Board(object):
     #this static method returns the direction that must be traveled to move from cell1 to cell2
     @staticmethod
     def get_direction(cell1, cell2):
-        return cell2['row'] - cell1['row'], cell2['column'] - cell1['column']
+        return cell2['row'] - cell1['row'], cell2['col'] - cell1['col']
 
 
     #checks if two cells are neighbors
     @staticmethod
     def is_neighbor(cell1, cell2):
         net_row = abs(cell1['row'] - cell2['row'])
-        net_col = abs(cell1['column'] - cell2['column'])
+        net_col = abs(cell1['col'] - cell2['col'])
         return (not (net_row == 0 and net_col == 0)) and (net_row <= 1 and net_col <= 1)
 
 
@@ -144,11 +141,10 @@ class Board(object):
                 found_end = found_empty = False
 
                 #initial positions
-                queue,row,col = [], testing['row'], testing['column']
+                queue, row, col = [], testing['row'], testing['col']
 
                 #while no end condition has been satisfied
-                while (not found_end) and (not found_empty) and self.in_bounds(row,col):
-
+                while (not found_end) and (not found_empty) and self.in_bounds(row, col):
                     #keeping track of a queue of all the cells in this direction
                     queue.append(testing)
 
@@ -188,7 +184,7 @@ class Board(object):
         if (not check) or valid:
             for each in effected:
                 each['color'] = color.value
-            self.table[cell['row'],cell['column']]['color'] = color.value
+            self.table[cell['row'], cell['col']]['color'] = color.value
             return True
         else:
             return False
@@ -200,6 +196,7 @@ class Board(object):
         iterator = np.nditer(self.table)
         while not iterator.finished:
             cell = iterator[0]
-            b.table[cell['row'], cell['column']] = (cell['row'], cell['column'], cell['color'])
+            row, col = cell['row'], cell['col']
+            b.table[row,col] = (row,col,cell['color'])
             iterator.iternext()
         return b
