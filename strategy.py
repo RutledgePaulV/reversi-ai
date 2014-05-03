@@ -1,8 +1,9 @@
-import numpy as np
+from enums import *
 
 #standard heuristic just counts number by color
 def standard(board, color):
-    return len([cell for cell in np.nditer(board.table, flags=board.FLAGS)[0]if cell.color is color])
+    return len(board.filter_all(lambda cell: Color.from_int(cell['color']) is color))
+
 
 def step_forward(board, heuristic, color):
     available = board.get_moves(color)
@@ -12,5 +13,7 @@ def step_forward(board, heuristic, color):
         new_board.make_move(move, color, False)
         ranked.append((heuristic(new_board, color), new_board))
 
-    sorted(ranked, key=lambda x: x[0])
+    # sorted(ranked, key=lambda x: x[0])
+
+    print(ranked)
     return ranked[0][1]

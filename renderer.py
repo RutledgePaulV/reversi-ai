@@ -51,8 +51,8 @@ class Renderer(object):
 
 
     def refresh(self):
-        [line.undraw(self.window) for line in self.grid]
-        [cell.undraw(self.window) for cell in self.cells]
+        [line.undraw() for line in self.grid]
+        [cell.undraw() for cell in self.cells]
         self.render()
 
 
@@ -64,4 +64,3 @@ class Renderer(object):
 
     def await(self):
         self.window.getMouse()
-        self.window.close()

@@ -1,5 +1,7 @@
 import numpy as np
+
 from enums import *
+
 
 
 
@@ -70,9 +72,14 @@ class Board(object):
         return (not (net_row == 0 and net_col == 0)) and (net_row <= 1 and net_col <= 1)
 
 
+    #checks if a position is within the bounds of the game board
+    def in_bounds(self, row, col):
+        return (0 <= row < self.dimension) and (0 <= col < self.dimension)
+
+
     #filters all cells according to some predicate
     def filter_all(self, predicate):
-        return [cell for cell in np.nditer(self.table, flags=self.FLAGS)[0] if predicate(cell)]
+        return [cell for cell in np.nditer(self.table, flags=self.FLAGS, op_flags=['readwrite'])[0] if predicate(cell)]
 
 
     #returns all cells nearby another cell who have no color assigned
@@ -133,20 +140,20 @@ class Board(object):
                 #getting the direction from the cell being checked to its neighbor
                 direction = Board.get_direction(cell, neighbor)
 
-                #first cell to be checked must be in bounds of the game board
-                in_vertical = in_horizontal = True
-
                 #have not yet found an empty cell or an end point
                 found_end = found_empty = False
 
-                queue = []
+                #initial positions
+                queue,row,col = [], testing['row'], testing['column']
 
                 #while no end condition has been satisfied
-                while (not found_end) and (not found_empty) and (in_vertical and in_horizontal):
+                while (not found_end) and (not found_empty) and self.in_bounds(row,col):
+
+                    #keeping track of a queue of all the cells in this direction
                     queue.append(testing)
 
                     #move to the next cell in the direction
-                    testing = self.table[testing['row'] + direction[0], testing['column'] + direction[1]]
+                    testing = self.table[row, col]
 
                     #check if ending cell has been found (validates move)
                     found_end = Color.from_int(testing['color']) is color
@@ -154,11 +161,9 @@ class Board(object):
                     #checks if empty cell was found
                     found_empty = Color.from_int(testing['color']) is Color.blank
 
-                    #checks if cell in vertical bounds
-                    in_vertical = (0 <= testing['row'] + direction[0] < self.dimension)
-
-                    #checks if cell in horizontal bounds
-                    in_horizontal = (0 <= testing['column'] + direction[1] < self.dimension)
+                    #moving to next position
+                    row += direction[0]
+                    col += direction[1]
 
                 #if an end point was found then we have validated the position
                 if found_end:
@@ -175,15 +180,16 @@ class Board(object):
 
     #returns all possible moves for a given color
     def get_moves(self, color):
-        return [x for x in self.get_unused() if self.check_possible(x, color)]
+        return [x for x in self.get_unused() if self.check_possible(x, color)[0]]
 
 
     def make_move(self, cell, color, check=True):
         valid, effected = self.check_possible(cell, color)
         if (not check) or valid:
             for each in effected:
-                each['color'] = color
-            cell.color = color
+                each['color'] = color.value
+            self.table[cell['row'],cell['column']]['color'] = color.value
+            return True
         else:
             return False
 
@@ -191,9 +197,9 @@ class Board(object):
     #creates a copy of the given board to instantiate new references to cells for constructing trees
     def copy(self):
         b = Board(self.dimension)
-        iterator = np.nditer(self.table, flags=['multi_index'])
+        iterator = np.nditer(self.table)
         while not iterator.finished:
-            row, col = iterator.multi_index
-            b.table[row, col] = iterator[0].copy()
+            cell = iterator[0]
+            b.table[cell['row'], cell['column']] = (cell['row'], cell['column'], cell['color'])
             iterator.iternext()
         return b
