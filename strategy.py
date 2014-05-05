@@ -12,4 +12,4 @@ def step_forward(board, heuristic, color):
         new_board = board.copy()
         new_board.make_move(move, color, False)
         ranked.append((heuristic(new_board, color), new_board))
-    return sorted(ranked, key=lambda x: x[0])[0][1]
+    return sorted(ranked, key=lambda x: x[0], reverse=True)[0][1]
