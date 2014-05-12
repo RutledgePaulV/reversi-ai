@@ -9,6 +9,7 @@ class BaseWeighting(object):
     def gen(self, dimension):
         pass
 
+
 class CornerEdgeOther(BaseWeighting):
 
     def __init__(self, corner, edge, other):
@@ -29,7 +30,7 @@ class CornerEdgeOther(BaseWeighting):
             edges.append((x,dimension))
 
 
-        weights = np.ones((dimension,dimension),float)
+        weights = np.ones((dimension+1,dimension+1),float)
 
         for x,y in corners:
             weights[x,y] = self.corner

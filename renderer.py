@@ -46,21 +46,16 @@ class Renderer(object):
                 self.cells.append(circle)
 
 
-    def update(self, board):
-       pass
-
-
-    def refresh(self):
+    def refresh(self, await):
         [line.undraw() for line in self.grid]
         [cell.undraw() for cell in self.cells]
-        self.render()
+        self.render(await)
 
 
-    def render(self):
+    def render(self, await=None):
         [line.draw(self.window) for line in self.grid]
         [cell.draw(self.window) for cell in self.cells]
-        self.await()
-
-
-    def await(self):
-        self.window.getMouse()
+        if not await:
+            self.window.getMouse()
+        else:
+            await()
