@@ -29,7 +29,7 @@ class CornerEdgeOther(BaseWeighting):
             edges.append((x,dimension))
 
 
-        weights = np.ones((8,8),float)
+        weights = np.ones((dimension,dimension),float)
 
         for x,y in corners:
             weights[x,y] = self.corner
