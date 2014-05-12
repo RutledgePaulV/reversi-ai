@@ -1,15 +1,34 @@
 from enums import *
+import numpy as np
 
-#standard heuristic just counts number by color
-def standard(board, color):
-    return len(board.filter_all(lambda cell: Color.from_int(cell['color']) is color))
+#provides basic structure of a heuristic class
+class BaseHeuristic(object):
 
-#steps forward one iteration based on a particular color who is moving and a particular heuristic weighting
-def step_forward(board, heuristic, color):
-    ranked = []
-    available = board.get_moves(color)
-    for move in available:
-        new_board = board.copy()
-        new_board.make_move(move, color, False)
-        ranked.append((heuristic(new_board, color), new_board))
-    return sorted(ranked, key=lambda x: x[0], reverse=True)[0][1]
+    def __init__(self):
+        pass
+
+    def eval(self, board, color):
+        pass
+
+
+#naive greedy algorithm heuristic, just evaluates
+class Greedy(BaseHeuristic):
+
+    def __init__(self):
+        super().__init__()
+
+    def eval(self, board, color):
+        return len(board.get_color(color))
+
+
+#this class applies a given initial weighting to the cells of the particular color
+#(equivalent to greedy for weighting of 1's)
+class Weighted(BaseHeuristic):
+
+    def __init__(self,weights):
+        self.weights = weights#np.ones((dimension,dimension),float)
+        super().__init__()
+
+
+    def eval(self,board,color):
+        return sum([self.weights[cell['row'],cell['col']] for cell in board.get_color(color)])

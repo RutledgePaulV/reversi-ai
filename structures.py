@@ -1,5 +1,7 @@
 import numpy as np
+
 from enums import *
+
 
 
 #defines a game board
@@ -101,14 +103,9 @@ class Board(object):
         return self.filter_all(lambda cell: Color.from_int(cell['color']) is Color.blank)
 
 
-    #returns all cells assigned the color white on the board
-    def get_white(self):
-        return self.filter_all(lambda cell: Color.from_int(cell['color']) is Color.white)
-
-
-    #returns all cells assigned the color black on the board
-    def get_black(self):
-        return self.filter_all(lambda cell: Color.from_int(cell['color']) is Color.black)
+    #returns all the cells of a given color
+    def get_color(self, color):
+        return self.filter_all(lambda cell: Color.from_int(cell['color']) is color)
 
 
     #checks if a particular cell is a viable move for a particular color
@@ -179,15 +176,24 @@ class Board(object):
         return [x for x in self.get_unused() if self.check_possible(x, color)[0]]
 
 
-    def make_move(self, cell, color, check=True):
+    #steps forward one iteration based on a particular color who is moving and a particular strategy
+    def step_forward(self, heuristic, color):
+        ranked,available = [], self.get_moves(color)
+        for move in available:
+            next_board = self.copy()
+            next_board.make_move(move, color)
+            ranked.append((heuristic.eval(next_board, color), next_board))
+        return sorted(ranked, key=lambda x: x[0], reverse=True)[0][1]
+
+
+    #makes a move on the board
+    def make_move(self, cell, color):
         valid, effected = self.check_possible(cell, color)
-        if (not check) or valid:
-            for each in effected:
-                each['color'] = color.value
+        if valid:
             self.table[cell['row'], cell['col']]['color'] = color.value
-            return True
+            for each in effected: each['color'] = color.value
         else:
-            return False
+            raise Exception('Move attempted is not valid.')
 
 
     #creates a copy of the given board to instantiate new references to cells for constructing trees
@@ -197,6 +203,6 @@ class Board(object):
         while not iterator.finished:
             cell = iterator[0]
             row, col = cell['row'], cell['col']
-            b.table[row,col] = (row,col,cell['color'])
+            b.table[row, col] = (row, col, cell['color'])
             iterator.iternext()
         return b
