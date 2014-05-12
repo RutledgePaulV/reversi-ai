@@ -46,7 +46,7 @@ class Renderer(object):
                 self.cells.append(circle)
 
 
-    def refresh(self, await):
+    def refresh(self, await=None):
         [line.undraw() for line in self.grid]
         [cell.undraw() for cell in self.cells]
         self.render(await)

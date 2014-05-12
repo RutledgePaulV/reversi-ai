@@ -21,10 +21,10 @@ class Board(object):
         self.dimension = dimension
 
         #creating new cells in table
-        self.__reset__()
+        self._reset()
 
 
-    def __reset__(self):
+    def _reset(self):
 
         iterator = np.nditer(self.table, flags=['multi_index'], op_flags=['readwrite'])
 
@@ -56,6 +56,9 @@ class Board(object):
     def cells(self):
         return self.filter_all(lambda x: True)
 
+    @property
+    def is_complete(self):
+        return len(self.get_moves(Color.white) + self.get_moves(Color.black))==0
 
     #this static method returns the direction that must be traveled to move from cell1 to cell2
     @staticmethod
