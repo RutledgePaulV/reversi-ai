@@ -64,3 +64,6 @@ class Renderer(object):
         else:
             await()
 
+
+    def to_image(self):
+        pass

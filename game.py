@@ -5,11 +5,13 @@ from renderer import *
 class BaseGame(object):
 
 
-    def __init__(self, color, board, graphics, heuristic):
+    def __init__(self, color, board, graphics, heuristic1, heuristic2):
+        self.start = color
         self.color = color
         self.board = board
         self.graphics = graphics
-        self.heuristic = heuristic
+        self.heuristic1 = heuristic1
+        self.heuristic2 = heuristic2
 
 
     def step_through(self):
@@ -35,7 +37,12 @@ class BaseGame(object):
 
 
     def step(self, await=None, update=True):
-        self.board = self.board.step_forward(self.heuristic, self.color)
+
+        if self.color is self.start:
+            self.board = self.board.step_forward(self.heuristic1, self.color)
+        else:
+            self.board = self.board.step_forward(self.heuristic2, self.color)
+
         self.color = Color.opposite(self.color)
 
         if update:
@@ -46,8 +53,8 @@ class BaseGame(object):
 class Standard(BaseGame):
 
 
-    def __init__(self, heuristic):
-        super().__init__(Color.white, Board(8), Renderer(500, 'grey'), heuristic)
+    def __init__(self, heuristic1, heuristic2):
+        super().__init__(Color.black, Board(8), Renderer(500, 'grey'), heuristic1, heuristic2)
 
 
 

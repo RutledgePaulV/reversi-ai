@@ -26,9 +26,30 @@ class Greedy(BaseHeuristic):
 class Weighted(BaseHeuristic):
 
     def __init__(self,weights):
-        self.weights = weights#np.ones((dimension,dimension),float)
+        self.weights = weights
         super().__init__()
 
 
     def eval(self,board,color):
         return sum([self.weights[cell['row'],cell['col']] for cell in board.get_color(color)])
+
+
+class Mobility(BaseHeuristic):
+
+    def __init__(self):
+        super().__init__()
+
+
+    def eval(self, board, color):
+        pass
+
+
+class Lookahead(BaseHeuristic):
+
+    def __init__(self, criterion_heuristic):
+        self.criterion = criterion_heuristic
+        super().__init__()
+
+
+    def eval(self, board, color):
+        pass
