@@ -5,8 +5,7 @@ from renderer import *
 class BaseGame(object):
 
 
-    def __init__(self, dimension, color, board, graphics, heuristic):
-        self.dimension = dimension
+    def __init__(self, color, board, graphics, heuristic):
         self.color = color
         self.board = board
         self.graphics = graphics
@@ -23,25 +22,32 @@ class BaseGame(object):
     def animate(self, time_step):
         while not self.board.is_complete:
             self.step(lambda: time.sleep(time_step))
+        self.graphics.hang()
 
 
     def complete(self):
         while not self.board.is_complete:
-            self.step(lambda: time.sleep(0))
+            self.step(lambda: None, False)
+        self.graphics.to_image()
+        self.graphics.load(self.board)
+        self.graphics.refresh()
+        self.graphics.hang()
 
 
-    def step(self, await=None):
+    def step(self, await=None, update=True):
         self.board = self.board.step_forward(self.heuristic, self.color)
         self.color = Color.opposite(self.color)
-        self.graphics.load(self.board)
-        self.graphics.refresh(await)
+
+        if update:
+            self.graphics.load(self.board)
+            self.graphics.refresh(await)
 
 
 class Standard(BaseGame):
 
 
     def __init__(self, heuristic):
-        super().__init__(8, Color.white, Board(16), Renderer(500, 'grey'), heuristic)
+        super().__init__(Color.white, Board(8), Renderer(500, 'grey'), heuristic)
 
 
 

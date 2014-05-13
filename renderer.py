@@ -18,6 +18,10 @@ class Renderer(object):
         self.cells.clear()
 
 
+    def hang(self):
+        self.window.getMouse()
+
+
     def load(self, board):
 
         self.clear()
@@ -59,3 +63,4 @@ class Renderer(object):
             self.window.getMouse()
         else:
             await()
+
