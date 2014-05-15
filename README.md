@@ -4,16 +4,30 @@
 
 The program is made up of the following files and their corresponding purposes:
 
-+ *enums.py*
++ **enums.py**
 
  + Contains an enumeration specifying the two possible colors that may be played
 
-+ *game.py*
++ **game.py**
  
  + Contains the actual game logic that allows two players to progress through the game against one another.
 
-+ *graphics.py*
++ **graphics.py**
  
  + This library http://mcsp.wartburg.edu/zelle/python/graphics.py is a simple wrapper on TKinter
         
-    
++ **renderer.py**
+ 
+ + Sets up the window object and managed drawing a board / refreshing the current board in the window.
+ 
++ **strategy.py**
+ 
+ + Contains the heuristic definitions to be used in navigating and expanding the game tree.
+ 
++ **structures.py**
+ 
+ + This is the main content of this program as it handles the game board and pieces as well as the logic for determining a positions validity and making a move.
+ 
++ **weightings.py**
+ 
+ + This is a helper class for generating particular weightings to be used with the weighted sum heuristic.
