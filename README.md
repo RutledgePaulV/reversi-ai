@@ -2,7 +2,7 @@
 ##
 
 ##Purpose
-####The purpose of this program is to explore strategies for the game of reversi (more popularly known by the brand name Othello). Reversi is a game played between two players which has a very large game tree of all positions (somewhere around 10<sup>28</sup> positions). Since the game tree would be so large, it is infeasible to find a complete strategy, therefore the game tree may be expanded and searched according to heuristic utility functions.
+####The purpose of this program is to explore strategies for the game of [reversi](http://en.wikipedia.org/wiki/Reversi) (more popularly known by the brand name Othello). Reversi is a game played between two players which has a very large game tree of all positions (somewhere around 10<sup>28</sup> positions). Since the game tree would be so large, it is infeasible to find a complete strategy, therefore the game tree may be expanded and searched according to heuristic utility functions.
 
 
 ##Application Structure
@@ -17,7 +17,7 @@
 
 + **graphics.py**
  
- + This library http://mcsp.wartburg.edu/zelle/python/graphics.py is a simple wrapper on TKinter
+ + This library [graphics.py](http://mcsp.wartburg.edu/zelle/python/graphics.py) is a simple wrapper on TKinter
         
 + **renderer.py**
  
