@@ -1,10 +1,14 @@
 #Reversi (Othello) Strategy Explorer
+
 ##
-
 ##Purpose
-####The purpose of this program is to explore strategies for the game of [reversi](http://en.wikipedia.org/wiki/Reversi) (more popularly known by the brand name Othello). Reversi is a game played between two players which has a very large game tree of all positions (somewhere around 10<sup>28</sup> positions). Since the game tree would be so large, it is infeasible to find a complete strategy, therefore the game tree may be expanded and searched according to heuristic utility functions.
+The purpose of this program is to explore strategies for the game of [reversi](http://en.wikipedia.org/wiki/Reversi) (more popularly known by the brand name Othello). Reversi is a game played between two players which has a very large game tree of all positions (somewhere around 10<sup>28</sup> positions). Since the game tree would be so large, it is infeasible to find a complete strategy, therefore the game tree may be expanded and searched according to heuristic utility functions.
 
+##
+##Notes
+The board structure makes use of numpy arrays for efficient and convenient indexing - as written all the code should be relatively efficient, straightforward, and extensible.
 
+##
 ##Application Structure
 
 + **enums.py**
@@ -34,3 +38,7 @@
 + **weightings.py**
  
  + This is a helper class for generating particular weightings to be used with the weighted sum heuristic.
+ 
+##
+##Licensing
+Do what you want but let me know if you want to do something really cool and needs some helpz.
