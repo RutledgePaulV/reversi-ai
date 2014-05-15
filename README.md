@@ -4,15 +4,15 @@
 
 The program is made up of the following files and their corresponding purposes:
 
-+ enums.py
++ *enums.py*
 
  + Contains an enumeration specifying the two possible colors that may be played
 
-+ game.py
++ *game.py*
  
  + Contains the actual game logic that allows two players to progress through the game against one another.
 
-+ graphics.py
++ *graphics.py*
  
  + This library http://mcsp.wartburg.edu/zelle/python/graphics.py is a simple wrapper on TKinter
         
