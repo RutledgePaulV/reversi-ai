@@ -5,6 +5,10 @@
 The purpose of this program is to explore strategies for the game of [reversi](http://en.wikipedia.org/wiki/Reversi) (more popularly known by the brand name Othello). Reversi is a game played between two players which has a very large game tree of all positions (somewhere around 10<sup>28</sup> positions). Since the game tree would be so large, it is infeasible to find a complete strategy, therefore the game tree may be expanded and searched according to heuristic utility functions.
 
 ##
+##GIF
+<img src="https://raw.githubusercontent.com/RutledgePaulV/reversi-ai/master/animation.gif"/>
+
+##
 ##Notes
 The board structure makes use of numpy arrays for efficient and convenient indexing - as written all the code should be relatively efficient, straightforward, and extensible.
 
