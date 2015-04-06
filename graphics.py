@@ -1,5 +1,4 @@
 import time, os
-from PIL import ImageGrab
 
 try:
    import tkinter as tk
@@ -205,10 +204,6 @@ class GraphWin(tk.Canvas):
             item.undraw()
             item.draw(self)
         self.update()
-
-    def to_image(self):
-        self.update()
-        ImageGrab.grab((0,0,self.width,self.height)).save
         
                       
 class Transform:
