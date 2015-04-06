@@ -8,6 +8,7 @@ The purpose of this program is to explore strategies for the game of [reversi](h
 ##GIF
 This is an animation of the actual program running. It consists of two computer players, white playing the greedy
 strategy and black playing a weighted strategy of 10 for corners, 4 for edges, and 1 for interior pieces.
+##
 <img src="https://raw.githubusercontent.com/RutledgePaulV/reversi-ai/master/animation.gif"/>
 
 ##
